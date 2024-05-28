@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <string.h>
+#include <stdio.h>
 
 
 /* USER CODE END Includes */
@@ -30,9 +31,12 @@
 /* USER CODE BEGIN PTD */
 #define MAX_BUFFER_SIZE 32
 char buffer[MAX_BUFFER_SIZE];
+uint32_t encoder_count ;
 
 void fill_the_buffer();
-void rot(uint8_t kek);
+void rot(int32_t motor_speed);
+void rotang(int32_t angle);
+int32_t extractValueFromCommand(const char* command);
 
 /* USER CODE END PTD */
 
@@ -58,6 +62,7 @@ UART_HandleTypeDef huart5;
 
 /* USER CODE BEGIN PV */
 
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -70,6 +75,10 @@ static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
+
+
+
+
 
 /* USER CODE END PFP */
 
@@ -124,11 +133,15 @@ HAL_Delay(3500);
 //HAL_UART_Transmit_IT(&huart5, (uint8_t *)"MAGNET#4#$", 10);
 fill_the_buffer();
 
+
+
+
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
 
 	  /*
 
@@ -401,7 +414,7 @@ static void MX_TIM4_Init(void)
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = 65535;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
   sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
@@ -549,10 +562,13 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PE4 PE5 PE6 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
+  /*Configure GPIO pins : PE4 PE5 PE6 PE11 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_11;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -587,6 +603,7 @@ void fill_the_buffer(void)
     uint8_t RXindex = 0;
     uint8_t receivedData;
     uint8_t pinstate;
+
     while(1)
     {
 
@@ -613,6 +630,9 @@ void fill_the_buffer(void)
             if ((char)receivedData == '$')
             {
             	HAL_UART_Transmit(&huart5, (uint8_t *)buffer, RXindex, HAL_MAX_DELAY);
+            	char command[RXindex];
+            	strncpy(command, buffer, RXindex);
+
 
                 RXindex = 0; // Reset buffer index
             }
@@ -630,49 +650,56 @@ void fill_the_buffer(void)
         // Update pin state
         pinstate = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15);
     }
-    if(strstr(buffer,"ROT"))
+    if(strncmp(buffer, "ROTANG", 6) == 0)
+              {
+            	rotang(extractValueFromCommand(buffer));
+                  //if(buffer[4]=='2'){rot(2);}
+                  //else if(buffer[4]=='1'){rot(1);}
+                 // else{rot(0);}
+
+               }
+
+    else if(strncmp(buffer, "ROT", 3) == 0)
       {
-          if(buffer[4]=='2'){rot(2);}
-          else if(buffer[4]=='1'){rot(1);}
-          else{rot(0);}
+    	rot(extractValueFromCommand(buffer));
+          //if(buffer[4]=='2'){rot(2);}
+          //else if(buffer[4]=='1'){rot(1);}
+         // else{rot(0);}
 
        }
    }
+
+
 }
 
-void rot(uint8_t kek)
+void rot(int32_t motor_speed)
 {
     // Ustawienie odpowiednich wartości wypełnienia PWM
     // aby obrócić silnik zgodnie z ruchem wskazówek zegara
 
-	//TIM1->CCR1 = 32767;
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 
-	if(kek == 1)
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+	HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+
+
+
+
+	TIM1->CCR3 = 1000;
+	TIM1->CCR4 = 0;
+	if(motor_speed >= 0)
 	{
-		TIM1->CCR1 = 2000;
-		TIM1->CCR2 = 0;
 
-
+		TIM1->CCR3 = motor_speed;
+		TIM1->CCR4 = 0;
 	}
-
-	else if(kek == 2)
-		{
-			TIM1->CCR1 = 0;
-			TIM1->CCR2 = 2000;
-
-
-		}
 	else
 	{
 
-		TIM1->CCR1 = 0;
-		TIM1->CCR2 = 0;
-
+		TIM1->CCR3 = 0;
+		TIM1->CCR4 = -motor_speed;
 
 	}
-
 
 
 
@@ -682,29 +709,45 @@ void rot(uint8_t kek)
 
 }
 
-void jebacstm()
+void rotang(int32_t angle)
 {
 
-	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-	int i = 0 ;
-	TIM1->CCR1 = 0;
-	while(i<255)
-	{
-		TIM1->CCR1 = i;
-		i++;
-		HAL_Delay(10);
+		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+		HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+		int32_t encoderValue = TIM3->CNT;
+		int32_t error = angle - encoderValue;
 
 
-	}
-	while(i>0)
-	{
-		TIM1->CCR1 = i;
-				i--;
-				HAL_Delay(10);
+		if(encoderValue > angle)
+		{
+			TIM1->CCR3 = 0;
+			TIM1->CCR4 = 0;
+
+		}
+
+		else
+		{
+			TIM1->CCR3 = 50;
+			TIM1->CCR4 = 0;
 
 
-	}
+		}
 
+}
+int32_t extractValueFromCommand(const char* command)
+{
+    int32_t value;
+    if (sscanf(command, "ROTANG#%d#$", &value) == 1)
+    {
+        return value;
+    }
+    else
+    {
+        // Handle the case where the command format is incorrect
+
+        return 0; // or some other error indicator
+    }
 }
 
 

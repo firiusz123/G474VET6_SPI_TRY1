@@ -66,6 +66,22 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Motor_A_CH1_Pin GPIO_PIN_0
+#define Motor_A_CH1_GPIO_Port GPIOC
+#define Motor_A_CH2_Pin GPIO_PIN_1
+#define Motor_A_CH2_GPIO_Port GPIOC
+#define Motor_B_CH3_Pin GPIO_PIN_2
+#define Motor_B_CH3_GPIO_Port GPIOC
+#define Motor_A_CH4_Pin GPIO_PIN_3
+#define Motor_A_CH4_GPIO_Port GPIOC
+#define Motor_B_EN_CH1_Pin GPIO_PIN_6
+#define Motor_B_EN_CH1_GPIO_Port GPIOC
+#define Motor_B_EN_CH2_Pin GPIO_PIN_7
+#define Motor_B_EN_CH2_GPIO_Port GPIOC
+#define Motor_A_EN_CH2_Pin GPIO_PIN_11
+#define Motor_A_EN_CH2_GPIO_Port GPIOA
+#define Motor_A_EN_CH1_Pin GPIO_PIN_12
+#define Motor_A_EN_CH1_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
