@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 
 
 /* USER CODE END Includes */
@@ -415,7 +416,7 @@ static void MX_TIM4_Init(void)
   htim4.Init.Period = 65535;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
   sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
@@ -564,9 +565,6 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, GPIO_PIN_SET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-
   /*Configure GPIO pins : PE4 PE5 PE6 PE11 */
   GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_11;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -581,11 +579,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PD14 */
-  GPIO_InitStruct.Pin = GPIO_PIN_14;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  /*Configure GPIO pins : LS2_DRV1_NO_Pin LS1_DRV1_NO_Pin */
+  GPIO_InitStruct.Pin = LS2_DRV1_NO_Pin|LS1_DRV1_NO_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
@@ -685,8 +682,7 @@ void rot(int32_t motor_speed)
 
 
 
-	TIM1->CCR3 = 1000;
-	TIM1->CCR4 = 0;
+
 	if(motor_speed >= 0)
 	{
 
@@ -711,29 +707,37 @@ void rot(int32_t motor_speed)
 
 void rotang(int32_t angle)
 {
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+    HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
 
-		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
-		HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-		int32_t encoderValue = TIM3->CNT;
-		int32_t error = angle - encoderValue;
+    float kp = 0.1;
 
+    while (1) {
+        int32_t encoderValue = TIM3->CNT;
+        int32_t error = angle - encoderValue;
 
-		if(encoderValue > angle)
-		{
-			TIM1->CCR3 = 0;
-			TIM1->CCR4 = 0;
+        int32_t pwm_value = (int32_t)(kp * error);
 
-		}
+        if (error > 0)
+        {
+            TIM1->CCR3 = pwm_value;
+            TIM1->CCR4 = 0;
+        } else {
+            TIM1->CCR3 = 0;
+            TIM1->CCR4 = -pwm_value;
+        }
 
-		else
-		{
-			TIM1->CCR3 = 50;
-			TIM1->CCR4 = 0;
-
-
-		}
-
+        GPIO_PinState pinState = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_12);
+        if (abs(error) <= 60 || pinState == GPIO_PIN_RESET) {
+            // Stop the motor
+            TIM1->CCR3 = 0;
+            TIM1->CCR4 = 0;
+            error = 0 ;
+            memset(buffer, 0, sizeof(buffer));
+            break;
+        }
+    }
 }
 int32_t extractValueFromCommand(const char* command)
 {

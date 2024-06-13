@@ -74,6 +74,10 @@ void Error_Handler(void);
 #define Motor_B_CH3_GPIO_Port GPIOC
 #define Motor_A_CH4_Pin GPIO_PIN_3
 #define Motor_A_CH4_GPIO_Port GPIOC
+#define LS2_DRV1_NO_Pin GPIO_PIN_12
+#define LS2_DRV1_NO_GPIO_Port GPIOD
+#define LS1_DRV1_NO_Pin GPIO_PIN_14
+#define LS1_DRV1_NO_GPIO_Port GPIOD
 #define Motor_B_EN_CH1_Pin GPIO_PIN_6
 #define Motor_B_EN_CH1_GPIO_Port GPIOC
 #define Motor_B_EN_CH2_Pin GPIO_PIN_7
