@@ -585,6 +585,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : OPTO_1_S1_Pin */
+  GPIO_InitStruct.Pin = OPTO_1_S1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(OPTO_1_S1_GPIO_Port, &GPIO_InitStruct);
+
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
 }
@@ -707,18 +713,46 @@ void rot(int32_t motor_speed)
 
 void rotang(int32_t angle)
 {
+
+
+	//setting up timers for the motors and for the encoder
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
     HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
 
+
+    // setting up variables for counting the teeth by slotted sensors
+    GPIO_PinState TeethNumber = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_0);
+    GPIO_PinState PreviousTeethNumber = TeethNumber;
+    int16_t Teeth = 0 ;
+
+    // setting up the ending condition for the while loop
+    int8_t Ending_condition = 1;
+
+
+
+    //space for the PID values
     float kp = 0.1;
+    float ki;
+    float kd;
 
-    while (1) {
+
+
+    // main while loop
+    while (Ending_condition) {
+
+    	// getting the encoder value from the CNT register
         int32_t encoderValue = TIM3->CNT;
+        //calculating error by diffrence between the angle we want and the actual angle from encoder
         int32_t error = angle - encoderValue;
-
+        // calculating the  pwm signal for the motors dependend on the error( simple PID)
         int32_t pwm_value = (int32_t)(kp * error);
 
+
+
+
+
+        //since there  here we operate at motors that has 2 channels we change direction by puting the pmw on the other channel
         if (error > 0)
         {
             TIM1->CCR3 = pwm_value;
@@ -728,14 +762,25 @@ void rotang(int32_t angle)
             TIM1->CCR4 = -pwm_value;
         }
 
-        GPIO_PinState pinState = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_12);
-        if (abs(error) <= 60 || pinState == GPIO_PIN_RESET) {
+        if(TeethNumber != PreviousTeethNumber)
+        {
+        	Teeth++;
+        }
+        else
+        {
+        PreviousTeethNumber = TeethNumber;
+        }
+
+        // Output of the edge detector
+        GPIO_PinState EdgeState = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_12);
+
+        if (abs(error) <= 60 || EdgeState == GPIO_PIN_RESET) {
             // Stop the motor
             TIM1->CCR3 = 0;
             TIM1->CCR4 = 0;
             error = 0 ;
             memset(buffer, 0, sizeof(buffer));
-            break;
+            Ending_condition = 0;
         }
     }
 }

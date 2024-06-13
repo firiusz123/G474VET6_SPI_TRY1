@@ -86,6 +86,8 @@ void Error_Handler(void);
 #define Motor_A_EN_CH2_GPIO_Port GPIOA
 #define Motor_A_EN_CH1_Pin GPIO_PIN_12
 #define Motor_A_EN_CH1_GPIO_Port GPIOA
+#define OPTO_1_S1_Pin GPIO_PIN_0
+#define OPTO_1_S1_GPIO_Port GPIOE
 
 /* USER CODE BEGIN Private defines */
 
