@@ -9,6 +9,6 @@
 ../Core/Src/main.c:545:13:MX_GPIO_Init	1
 ../Core/Src/main.c:598:6:fill_the_buffer	7
 ../Core/Src/main.c:672:6:rot	2
-../Core/Src/main.c:708:6:rotang	5
+../Core/Src/main.c:708:6:rotang	4
 ../Core/Src/main.c:742:9:extractValueFromCommand	2
 ../Core/Src/main.c:765:6:Error_Handler	1

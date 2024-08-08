@@ -707,32 +707,32 @@ void rot(int32_t motor_speed)
 
 void rotang(int32_t angle)
 {
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
-    HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+    HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
 
     float kp = 0.1;
 
     while (1) {
-        int32_t encoderValue = TIM3->CNT;
+        int32_t encoderValue = TIM4->CNT;
         int32_t error = angle - encoderValue;
 
         int32_t pwm_value = (int32_t)(kp * error);
 
         if (error > 0)
         {
-            TIM1->CCR3 = pwm_value;
-            TIM1->CCR4 = 0;
+            TIM1->CCR1 = 0;
+            TIM1->CCR2 = pwm_value;
         } else {
-            TIM1->CCR3 = 0;
-            TIM1->CCR4 = -pwm_value;
+            TIM1->CCR1 = -pwm_value;
+            TIM1->CCR2 = 0;
         }
 
-        GPIO_PinState pinState = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_12);
-        if (abs(error) <= 60 || pinState == GPIO_PIN_RESET) {
+        GPIO_PinState pinState = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_14);
+        if (abs(error) <= 10 || pinState == GPIO_PIN_RESET) {
             // Stop the motor
-            TIM1->CCR3 = 0;
-            TIM1->CCR4 = 0;
+            TIM1->CCR1 = 0;
+            TIM1->CCR2 = 0;
             error = 0 ;
             memset(buffer, 0, sizeof(buffer));
             break;
