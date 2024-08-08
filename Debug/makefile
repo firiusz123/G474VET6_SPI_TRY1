@@ -34,34 +34,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := G474VET6_SPI_TRY1
+BUILD_ARTIFACT_NAME := communication_try2
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-G474VET6_SPI_TRY1.elf \
+communication_try2.elf \
 
 MAP_FILES += \
-G474VET6_SPI_TRY1.map \
+communication_try2.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-G474VET6_SPI_TRY1.list \
+communication_try2.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: G474VET6_SPI_TRY1.elf secondary-outputs
+main-build: communication_try2.elf secondary-outputs
 
 # Tool invocations
-G474VET6_SPI_TRY1.elf G474VET6_SPI_TRY1.map: $(OBJS) $(USER_OBJS) C:\Users\11\Desktop\NIEkodowanie\C\stm32\G474VET6_SPI_TRY1\STM32G474VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "G474VET6_SPI_TRY1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\11\Desktop\NIEkodowanie\C\stm32\G474VET6_SPI_TRY1\STM32G474VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="G474VET6_SPI_TRY1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+communication_try2.elf communication_try2.map: $(OBJS) $(USER_OBJS) C:\Users\mateu\STM32CubeIDE\workspace_1.13.0\communication_try2\STM32G474VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "communication_try2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\mateu\STM32CubeIDE\workspace_1.13.0\communication_try2\STM32G474VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="communication_try2.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -70,14 +70,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-G474VET6_SPI_TRY1.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "G474VET6_SPI_TRY1.list"
+communication_try2.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "communication_try2.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) G474VET6_SPI_TRY1.elf G474VET6_SPI_TRY1.list G474VET6_SPI_TRY1.map default.size.stdout
+	-$(RM) communication_try2.elf communication_try2.list communication_try2.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

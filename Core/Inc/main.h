@@ -31,18 +31,11 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#define Magnets_Control_P2_Pin GPIO_PIN_4
-#define Magnets_Control_P2_GPIO_Port GPIOE
-#define Magnets_Control_P1_Pin GPIO_PIN_5
-#define Magnets_Control_P1_GPIO_Port GPIOE
-#define Magnets_Control_EN_Pin GPIO_PIN_6
-#define Magnets_Control_EN_GPIO_Port GPIOE
 
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-extern SPI_HandleTypeDef hspi1;
 
 /* USER CODE END ET */
 
@@ -74,6 +67,8 @@ void Error_Handler(void);
 #define Motor_B_CH3_GPIO_Port GPIOC
 #define Motor_A_CH4_Pin GPIO_PIN_3
 #define Motor_A_CH4_GPIO_Port GPIOC
+#define Limiter_switch_j19_Pin GPIO_PIN_8
+#define Limiter_switch_j19_GPIO_Port GPIOD
 #define LS2_DRV1_NO_Pin GPIO_PIN_12
 #define LS2_DRV1_NO_GPIO_Port GPIOD
 #define LS1_DRV1_NO_Pin GPIO_PIN_14

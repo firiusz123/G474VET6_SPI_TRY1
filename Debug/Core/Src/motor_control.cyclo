@@ -1,0 +1,5 @@
+../Core/Src/motor_control.c:9:6:Motor_Init	1
+../Core/Src/motor_control.c:16:6:Motor_Steer	5
+../Core/Src/motor_control.c:45:6:RotateHead	1
+../Core/Src/motor_control.c:52:8:ABSRotateHead	2
+../Core/Src/motor_control.c:64:6:HeadBase	2

@@ -1,0 +1,3 @@
+../Core/Src/call_center.c:26:7:command_checker	4
+../Core/Src/call_center.c:58:7:Uart_getter	4
+../Core/Src/call_center.c:82:6:SPI_Communication	11
