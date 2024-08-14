@@ -4,7 +4,12 @@
 
 extern TIM_HandleTypeDef htim1; // Assuming htim1 is your timer handle
 extern TIM_HandleTypeDef htim4;
+
 extern int8_t posABS;
+extern int8_t TileON;
+
+#define MOTOR_SPEED_TILE_ON 250
+#define MOTOR_SPEED_TILE_OFF 180
 
 void Motor_Init(void) {
 	  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
@@ -17,27 +22,63 @@ void Motor_Steer(int8_t target)
 {	SlotSensor_Init();
 	Motor_Init();
 	int8_t count = 0 ;
+	int16_t Motorspeed;
 
-	if(target > 0)
+	if(TileON)
 	{
-		while(count < target)
-		{	  count = SlotSensor_Update();
-			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 219-1);
-			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 0);
+
+		Motorspeed = MOTOR_SPEED_TILE_ON - 1 ;
+		if(target > 0)
+		{
+
+			while(count < target)
+			{	  count = SlotSensor_Update();
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, Motorspeed);
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 0);
+			}
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 0);
+
 		}
-			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
-			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 0);
+		else if(target< 0)
+		{
+			while(count < -target)
+					{	  count = SlotSensor_Update();
+						__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+						__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, Motorspeed);
+					}
+						__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+						__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 0);
+		}
 
 	}
-	else if(target< 0)
+	else
 	{
-		while(count < -target)
-				{	  count = SlotSensor_Update();
-					__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
-					__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 219-1);
+		Motorspeed = MOTOR_SPEED_TILE_OFF -1 ;
+		if(target > 0)
+				{
+					while(count < target)
+					{
+						count = SlotSensor_Update();
+						__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, Motorspeed);
+						__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 0);
+					}
+
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 0);
 				}
-					__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
-					__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 0);
+		else if(target< 0)
+		{
+			while(count < -target)
+			{
+				count = SlotSensor_Update();
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, Motorspeed);
+			}
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+				__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 0);
+		}
+
 	}
 
 }

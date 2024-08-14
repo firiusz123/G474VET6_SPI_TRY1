@@ -1,3 +1,3 @@
-../Core/Src/call_center.c:26:7:command_checker	24	static
-../Core/Src/call_center.c:58:7:Uart_getter	24	static
-../Core/Src/call_center.c:82:6:SPI_Communication	40	static
+../Core/Src/call_center.c:28:7:command_checker	24	static
+../Core/Src/call_center.c:60:7:Uart_getter	24	static
+../Core/Src/call_center.c:84:6:SPI_Communication	48	static

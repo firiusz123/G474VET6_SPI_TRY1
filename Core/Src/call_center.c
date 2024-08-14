@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "slot_sensor.h"
 #include "motor_control.h"
+#include "head_controll.h"
 
 #define RX_BUFFER_SIZE 32
 #define TX_BUFFER_SIZE 32
@@ -21,6 +22,7 @@ char RxBuffer[RX_BUFFER_SIZE]={0};
 char TxBuffer[TX_BUFFER_SIZE] = "pAng$";
 
 int8_t posABS = 0;
+int8_t TileON = 0;
 
 
 char* command_checker(uint8_t* buffer)
@@ -81,6 +83,7 @@ char* Uart_getter(void)
 }
 void SPI_Communication(void)
 {
+
     int8_t index = 0;
     uint8_t receivedData;
     uint8_t pinstate = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15);
@@ -106,21 +109,31 @@ void SPI_Communication(void)
 
             	else if(strcmp(command, "HEAD") == 0)
             	{
-            		HAL_UART_Transmit(&huart5, (uint8_t *)RxBuffer, index, HAL_MAX_DELAY);
+
+            		HAL_UART_Transmit(&huart5, (uint8_t *)RxBuffer, strlen(RxBuffer), HAL_MAX_DELAY);
+            		HAL_Delay(20);
+
+            		char* received_data = head_control();
             		memset(TxBuffer, '\0', sizeof(TxBuffer));
-            		command = Uart_getter();
+            		strncpy(TxBuffer, received_data, sizeof(TxBuffer) - 1);
 
-            		strncpy(TxBuffer, command, sizeof(TxBuffer) - 1);
-            		free(command);
 
-            	}
+            	 }
             	else if(strcmp(command, "MAGNET") == 0)
             	{
 
+
+            		int8_t MagState;
             		HAL_UART_Transmit(&huart5, (uint8_t *)RxBuffer, strlen(RxBuffer), HAL_MAX_DELAY);
             		memset(TxBuffer, '\0', sizeof(TxBuffer));
+					sscanf(RxBuffer, "MAGNET#%d$", &MagState);
+					if(MagState != 0){TileON = 1 ;}
+					else{TileON = 0 ;}
             		char *str = "MAG#OK$";
+            		HAL_Delay(200);
             		strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
+
+
             	}
 
 
@@ -138,6 +151,7 @@ void SPI_Communication(void)
 
             	else if(strcmp(command,"AROT")==0)
             	{
+
             		 int number;
             		 sscanf(RxBuffer, "AROT#%d$", &number);
 
@@ -145,7 +159,7 @@ void SPI_Communication(void)
             		 ABSRotateHead(number);
 
             		 memset(TxBuffer, '\0', sizeof(TxBuffer));
-            		 char *str = "ROT#OK$";
+            		 char *str = "AROT#OK$";
             		 strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
 
 

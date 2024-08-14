@@ -7,11 +7,11 @@ int8_t counter = 0;
 void SlotSensor_Init(void) {
 	counter = 0;
     // Initialize the last state
-    last_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_4);
+    last_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_7);
 }
 
 int SlotSensor_Update(void) {
-    GPIO_PinState current_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_4); // Read pin state
+    GPIO_PinState current_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_7); // Read pin state
 
     // Check for a change in state
     if (current_state == GPIO_PIN_SET && last_state == GPIO_PIN_RESET) {
