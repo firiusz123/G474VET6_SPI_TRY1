@@ -15,4 +15,5 @@ extern UART_HandleTypeDef huart5;
 
 void SPI_Communication(void);
 
+
 #endif /* INC_CALL_CENTER_H_ */

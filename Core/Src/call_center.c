@@ -106,7 +106,7 @@ void SPI_Communication(void)
             {
             	char* command = command_checker(RxBuffer);
             	if(command == NULL){command = "MEM#ERR";}
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
             	else if(strcmp(command, "HEAD") == 0)
             	{
 
@@ -119,6 +119,7 @@ void SPI_Communication(void)
 
 
             	 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
             	else if(strcmp(command, "MAGNET") == 0)
             	{
 
@@ -135,8 +136,7 @@ void SPI_Communication(void)
 
 
             	}
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
             	else if(strcmp(command,"ROT")==0)
             	{
             		    int number;
@@ -146,9 +146,7 @@ void SPI_Communication(void)
             		char *str = "ROT#OK$";
             		strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
             	}
-
-
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
             	else if(strcmp(command,"AROT")==0)
             	{
 
@@ -161,12 +159,13 @@ void SPI_Communication(void)
             		 memset(TxBuffer, '\0', sizeof(TxBuffer));
             		 char *str = "AROT#OK$";
             		 strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
-
-
-
             	}
-
-            	else if(strcmp(command,"TILEBASE")==0){HeadBase();}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+            	else if(strcmp(command,"TILEBASE")==0)
+            	{
+            		HeadBase();
+            	}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             	free(command);
             	command = NULL;

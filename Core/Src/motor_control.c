@@ -105,6 +105,7 @@ return 1;
 void HeadBase(void)
 {
 
+	int16_t BaseSpeed = 150;
 	Motor_Init();
 	uint8_t pinstate1;
 	pinstate1 = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);
@@ -112,7 +113,7 @@ void HeadBase(void)
 	while(pinstate1)
 	{
 		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
-		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 190-1);
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, BaseSpeed-1);
 
 		pinstate1 = HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8);
 
