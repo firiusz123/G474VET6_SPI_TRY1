@@ -31,8 +31,7 @@ Core/Src/call_center.o: ../Core/Src/call_center.c \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_tim_ex.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h \
- ../Core/Inc/slot_sensor.h ../Core/Inc/motor_control.h \
- ../Core/Inc/head_controll.h
+ ../Core/Inc/slot_sensor.h ../Core/Inc/motor_control.h
 ../Core/Inc/call_center.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
@@ -68,4 +67,3 @@ Core/Src/call_center.o: ../Core/Src/call_center.c \
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h:
 ../Core/Inc/slot_sensor.h:
 ../Core/Inc/motor_control.h:
-../Core/Inc/head_controll.h:

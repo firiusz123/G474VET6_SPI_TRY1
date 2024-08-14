@@ -1,3 +1,3 @@
 ../Core/Src/call_center.c:28:7:command_checker	4
-../Core/Src/call_center.c:60:7:Uart_getter	4
-../Core/Src/call_center.c:84:6:SPI_Communication	12
+../Core/Src/call_center.c:59:7:head_control	5
+../Core/Src/call_center.c:97:6:SPI_Communication	14

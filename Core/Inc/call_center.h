@@ -10,6 +10,7 @@
 
 #include "main.h"
 extern SPI_HandleTypeDef hspi1; // Extern declaration
+
 extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart5;
 

@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include "slot_sensor.h"
 #include "motor_control.h"
-#include "head_controll.h"
+//#include "head_controll.h"
 
 #define RX_BUFFER_SIZE 32
 #define TX_BUFFER_SIZE 32
@@ -56,31 +56,44 @@ char* command_checker(uint8_t* buffer)
 
     return command;
 }
+char* head_control(void) {
+    char RxBuffer1[RX_BUFFER_SIZE];
+    memset(RxBuffer1, '\0', sizeof(RxBuffer1)); // Clear the buffer
 
-char* Uart_getter(void)
-{
-	int8_t ending_condition = 1 ;
-	uint8_t recieved_letter ;
-	int8_t index ;
-	char* charbuffer = (char*)malloc(32);
-	while(ending_condition)
-	{
-		HAL_UART_Receive(&huart4, &recieved_letter, 1,1000);
-		charbuffer[index]=(char)recieved_letter;
-		if((char)recieved_letter =='$'){ending_condition = 0 ;}
-		else{index++;}
-		if(index > 32-1){ending_condition = 0;}
+    char received_char1;
+    int8_t index = 0;
 
+    // Continue to receive characters until the character '$' is found
+    while (1) {
+        // Receive one character at a time
+        if (HAL_UART_Receive(&huart5, (uint8_t*)&received_char1, 1, HAL_MAX_DELAY) == HAL_OK) {
+            // Skip adding to buffer if the received character is '\0'
+            if (received_char1 == '\0') {
+                continue;
+            }
 
-	}
+            RxBuffer1[index++] = received_char1;
+            HAL_Delay(1);
+            // Break the loop if the end of the buffer is reached or if '$' is received
+            if (index >= RX_BUFFER_SIZE || received_char1 == '$') {
+                break;
 
-	return charbuffer;
+            }
+        }
+    }
 
+    // Null-terminate the string
+    RxBuffer1[index] = '\0';
 
-
-
-
+    return RxBuffer1;
 }
+
+
+
+
+
+
+
 void SPI_Communication(void)
 {
 
@@ -111,11 +124,13 @@ void SPI_Communication(void)
             	{
 
             		HAL_UART_Transmit(&huart5, (uint8_t *)RxBuffer, strlen(RxBuffer), HAL_MAX_DELAY);
-            		HAL_Delay(20);
-
+            		HAL_Delay(1);
             		char* received_data = head_control();
+            		char* str;
             		memset(TxBuffer, '\0', sizeof(TxBuffer));
-            		strncpy(TxBuffer, received_data, sizeof(TxBuffer) - 1);
+            		if((strcmp(command, "HEAD#0#F0F0F0F0$") == 0 )|| (strcmp(command, "HEAD#1#F0F0F0F0$") == 0 ) ){str = "MAGNET#NOK$";}
+            		else{str = "MAGNET#OK$";}
+            		strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
 
 
             	 }
@@ -130,7 +145,7 @@ void SPI_Communication(void)
 					sscanf(RxBuffer, "MAGNET#%d$", &MagState);
 					if(MagState != 0){TileON = 1 ;}
 					else{TileON = 0 ;}
-            		char *str = "MAG#OK$";
+            		char *str = "MAGNET#OK$";
             		HAL_Delay(200);
             		strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
 
@@ -171,7 +186,7 @@ void SPI_Communication(void)
             	command = NULL;
                 HAL_SPI_Transmit(&hspi1, (uint8_t *)TxBuffer, strlen(TxBuffer), HAL_MAX_DELAY);
                 index = 0; // Reset buffer index
-
+                memset(RxBuffer, '\0', sizeof(RxBuffer));
             }
         }
 
