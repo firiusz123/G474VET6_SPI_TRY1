@@ -128,7 +128,7 @@ void SPI_Communication(void)
             		char* received_data = head_control();
             		char* str;
             		memset(TxBuffer, '\0', sizeof(TxBuffer));
-            		if((strcmp(command, "HEAD#0#F0F0F0F0$") == 0 )|| (strcmp(command, "HEAD#1#F0F0F0F0$") == 0 ) ){str = "MAGNET#NOK$";}
+            		if((strcmp(received_data, "HEAD#0#F0F0F0F0$") == 0 )|| (strcmp(command, "HEAD#1#F0F0F0F0$") == 0 ) ){str = "MAGNET#NOK$";}
             		else{str = "MAGNET#OK$";}
             		strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
 
