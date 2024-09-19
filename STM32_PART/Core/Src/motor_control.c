@@ -102,6 +102,22 @@ return 1;
 
 
 }
+
+void HeadAdjust(int16_t speed)
+{
+	GPIO_PinState current_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_7); 
+	GPIO_PinState last_state = current_state
+		while(current_state == last_state)
+		{
+			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, Motorspeed);
+		}
+
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 0);
+			
+		
+}
 void HeadBase(void)
 {
 
