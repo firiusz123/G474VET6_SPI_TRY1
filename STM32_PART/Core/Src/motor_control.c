@@ -111,6 +111,7 @@ void HeadAdjust(int16_t speed)
 		{
 			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
 			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, Motorspeed);
+			GPIO_PinState current_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_7); 
 		}
 
 		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
