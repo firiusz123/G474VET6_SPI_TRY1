@@ -15,7 +15,10 @@ int SlotSensor_Update(void) {
 
     // Check for a change in state
     if (current_state == GPIO_PIN_SET && last_state == GPIO_PIN_RESET) {
-        counter++; // Increment counter on state change
+    	HAL_Delay(1);
+    	current_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_7);
+    	if(current_state == GPIO_PIN_SET){
+        counter++;} // Increment counter on state change
          // Update last state
     }
     last_state = current_state;

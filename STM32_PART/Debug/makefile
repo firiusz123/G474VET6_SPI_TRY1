@@ -60,8 +60,8 @@ all: main-build
 main-build: communication_try01.elf secondary-outputs
 
 # Tool invocations
-communication_try01.elf communication_try01.map: $(OBJS) $(USER_OBJS) C:\Users\mateu\STM32CubeIDE\workspace_1.13.0\communication_try01\STM32G474VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "communication_try01.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\mateu\STM32CubeIDE\workspace_1.13.0\communication_try01\STM32G474VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="communication_try01.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+communication_try01.elf communication_try01.map: $(OBJS) $(USER_OBJS) C:\Users\mateu\Downloads\G474VET6_SPI_TRY1-communication_try3\STM32_PART\STM32G474VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "communication_try01.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\mateu\Downloads\G474VET6_SPI_TRY1-communication_try3\STM32_PART\STM32G474VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="communication_try01.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
