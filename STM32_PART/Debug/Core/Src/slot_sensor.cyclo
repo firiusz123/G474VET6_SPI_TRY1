@@ -1,0 +1,2 @@
+../Core/Src/slot_sensor.c:7:6:SlotSensor_Init	1
+../Core/Src/slot_sensor.c:13:5:SlotSensor_Update	4

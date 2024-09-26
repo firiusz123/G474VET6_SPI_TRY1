@@ -1,0 +1,5 @@
+../Core/Src/motor_control.c:15:6:Motor_Init	8	static
+../Core/Src/motor_control.c:22:6:Motor_Steer	24	static
+../Core/Src/motor_control.c:90:6:RotateHead	16	static
+../Core/Src/motor_control.c:97:8:ABSRotateHead	32	static
+../Core/Src/motor_control.c:327:6:HeadBase	16	static
