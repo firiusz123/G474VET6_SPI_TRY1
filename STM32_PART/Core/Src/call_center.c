@@ -25,6 +25,8 @@ char TxBuffer1[TX_BUFFER_SIZE] = "pAng$";
 
 int8_t posABS = 0;
 int8_t TileON = 0;
+uint32_t diff=0;
+uint32_t diff1=0;
 
 
 char* command_checker(uint8_t* buffer)
@@ -66,34 +68,52 @@ char* head_control(void) {
     int8_t index = 0;
     memset(RxBuffer1, '\0', sizeof(RxBuffer1));
     // Continue to receive characters until the character '$' is found
+
+    uint32_t start_time=HAL_GetTick();
+    uint32_t timeout1=7000;
+
+
     while (1) {
         // Receive one character at a time
-    	if (HAL_UART_Receive(&huart5, (uint8_t*)&received_char1, 1, 1000) == HAL_OK) {
+		diff1=HAL_GetTick()-start_time;
+		if(diff1>=timeout1){
+		return "error$"; }
+
+    	if (HAL_UART_Receive(&huart5, (uint8_t*)&received_char1, 1, 100) == HAL_OK) {
         //if (HAL_UART_Receive(&huart5, (uint8_t*)&received_char1, 1, HAL_MAX_DELAY) == HAL_OK) {
         //if (HAL_UART_Receive(&huart5, (uint8_t*)received_char1, 1, HAL_MAX_DELAY) == HAL_OK) {
             // Skip adding to buffer if the received character is '\0'
     		if (received_char1=='H'){
     			RxBuffer1[index++] = received_char1;
+
     			while(1){
-    				if (HAL_UART_Receive(&huart5, (uint8_t*)&received_char1, 1, 1000) == HAL_OK) {
+    				diff=HAL_GetTick()-start_time;
+    				if(diff>=timeout1){
+    				break;}
+    				if (HAL_UART_Receive(&huart5, (uint8_t*)&received_char1, 1, 100) == HAL_OK) {
 
 
     						if (received_char1 == '\0') {
     							continue;
     						}
 
+
     						RxBuffer1[index++] = received_char1;
             //HAL_Delay(1);
             // Break the loop if the end of the buffer is reached or if '$' is received
     						if (index >= RX_BUFFER_SIZE || received_char1 == '$') {
-    							break;
+    							return RxBuffer1;
     						}
+    						//else {break;}
     					}
     				}
     			}
     		if (index >= RX_BUFFER_SIZE || received_char1 == '$') {
-    		    							break;
+    			return RxBuffer1;
     		    						}
+			if(diff>=timeout1){
+				return "error$";}
+
     		}
     		}
 
@@ -196,18 +216,23 @@ void SPI_Communication(void)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
             	else if(strcmp(command, "HEAD") == 0)
             	{
-
-            		HAL_UART_Transmit(&huart5, (uint8_t *)RxBuffer, strlen(RxBuffer), HAL_MAX_DELAY);
-            		HAL_Delay(1);
+            		HAL_UART_Transmit(&huart5, (uint8_t *)RxBuffer, strlen(RxBuffer), 100);
             		char* received_data = head_control();
             		char* str;
             		memset(TxBuffer, '\0', sizeof(TxBuffer));
             		if(strcmp(received_data, "HEAD#0#F0F0F0F0$") == 0 ){str = "HEAD#0#NOK$";}
+
             		else if(strcmp(received_data, "HEAD#1#F0F0F0F0$") == 0 ) {str = "HEAD#1#NOK$";}
             		else if (received_data[5]=='0'){str = "HEAD#0#OK$";}
             		else if (received_data[5]=='1'){str="HEAD#1#OK$";}
+            		else{str="HEAD#0#NOK$";}
 
-            		printf("%s\n",str);
+            		if (strcmp(received_data,"error$") == 0){
+            			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
+            			HAL_Delay(500);
+            			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
+            			str = "error$";}
+
             		strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
             		memset(RxBuffer, '\0', sizeof(RxBuffer));
 
@@ -258,6 +283,8 @@ void SPI_Communication(void)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
             	else if(strcmp(command,"AROT")==0)
             	{
+            	    uint32_t start_time=HAL_GetTick();
+            	    uint32_t timeout1=10000;
 
             		 int number;
             		 sscanf(RxBuffer, "AROT#%d$", &number);

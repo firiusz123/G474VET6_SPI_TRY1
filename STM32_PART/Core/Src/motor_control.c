@@ -102,8 +102,8 @@ int8_t ABSRotateHead(int8_t target_position)
 	GPIO_PinState last_state1=current_state1;
 	if(current_state1==GPIO_PIN_RESET){
 		while (current_state1 == last_state1){
-			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3,100);
-			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 0);
+			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3,0);
+			__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, 100);
 			current_state1 = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_7);
 		}
 

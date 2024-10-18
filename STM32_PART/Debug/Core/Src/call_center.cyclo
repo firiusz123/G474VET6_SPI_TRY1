@@ -1,5 +1,5 @@
-../Core/Src/call_center.c:30:7:command_checker	4
-../Core/Src/call_center.c:61:7:head_control	9
-../Core/Src/call_center.c:109:7:swtch_control	5
-../Core/Src/call_center.c:140:7:gaps_control	5
-../Core/Src/call_center.c:171:6:SPI_Communication	31
+../Core/Src/call_center.c:32:7:command_checker	4
+../Core/Src/call_center.c:63:7:head_control	12
+../Core/Src/call_center.c:129:7:swtch_control	5
+../Core/Src/call_center.c:160:7:gaps_control	5
+../Core/Src/call_center.c:191:6:SPI_Communication	32
