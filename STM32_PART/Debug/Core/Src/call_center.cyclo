@@ -2,4 +2,4 @@
 ../Core/Src/call_center.c:63:7:head_control	12
 ../Core/Src/call_center.c:129:7:swtch_control	5
 ../Core/Src/call_center.c:160:7:gaps_control	5
-../Core/Src/call_center.c:191:6:SPI_Communication	32
+../Core/Src/call_center.c:191:6:SPI_Communication	31

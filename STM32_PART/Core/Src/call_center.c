@@ -244,13 +244,29 @@ void SPI_Communication(void)
 
 
             		int8_t MagState;
+            		int8_t WhitchMag;
+            		char message_to_uart;
 
             		HAL_UART_Transmit(&huart5, (uint8_t *)RxBuffer, strlen(RxBuffer), HAL_MAX_DELAY);
+
+
             		memset(TxBuffer, '\0', sizeof(TxBuffer));
-					sscanf(RxBuffer, "MAGNET#%d$", &MagState);
-					if(MagState != 0){TileON = 1 ;}
-					else{TileON = 0 ;}
+					sscanf(RxBuffer, "MAGNET#%d#%d$", &WhitchMag,&MagState);
+					sprintf(message_to_uart, "MAGNET#%d$", MagState);
+
+					if (WhitchMag == 0)
+					{
+					  HAL_UART_Transmit(&huart5, (uint8_t *)message_to_uart, strlen(message_to_uart), HAL_MAX_DELAY);
+					}
+					else if (WhitchMag == 1)
+					{
+					  HAL_UART_Transmit(&huart4, (uint8_t *)message_to_uart, strlen(message_to_uart), HAL_MAX_DELAY);
+					}
+					TileON = (MagState != 0) ? 1 : 0;
 					//power=char(MagState);
+
+					//%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+					/*
 					if(MagState==0){
 						char *str = "MAGNET#0#OK$";
 						HAL_Delay(200);
@@ -262,12 +278,30 @@ void SPI_Communication(void)
 	            		strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
 
 					}
+					*///%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+					/*
+					 * %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+					char *response = "MAGNET#0#0#OK$";
+					sprintf(response, "MAGNET#%d#%d#OK$", &WhitchMag,&MagState);
+					HAL_Delay(200);
+					strncpy(TxBuffer, response, sizeof(TxBuffer) - 1);
+					%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+					*/
+
+
+					char response[50];
+					sprintf(response, "MAGNET#%d#%d#OK$", WhitchMag, MagState);
+					HAL_Delay(200);
+					strncpy(TxBuffer, response, sizeof(TxBuffer) - 1);
+
 					//char *str = "MAGNET#4#OK$";
 					//HAL_Delay(200);
 					//strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
             		//HAL_Delay(200);
 
             		memset(RxBuffer, '\0', sizeof(RxBuffer));
+            		memset(response,'\0',sizeof(response));
             	}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
             	else if(strcmp(command,"ROT")==0)
