@@ -213,6 +213,8 @@ void SPI_Communication(void)
             {
             	char* command = command_checker(RxBuffer);
             	if(command == NULL){command = "MEM#ERR";}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
             	else if(strcmp(command, "HEAD") == 0)
             	{
