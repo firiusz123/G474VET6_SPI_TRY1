@@ -324,7 +324,7 @@ return 1;
 
 
 }
-void HeadBase(void)
+void HeadBase(UART_HandleTypeDef *huart)
 {
 
 	int16_t BaseSpeed = 250;
