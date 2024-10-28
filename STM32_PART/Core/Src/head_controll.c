@@ -13,6 +13,9 @@ char* head_control1(void) {
     char received_char;
     int8_t index = 0;
 
+    uint8_t timeout = 1000;
+    uint32_t start_time = HAL_GetTick();
+
     // Continue to receive characters until the character '$' is found
     while (1) {
         // Receive one character at a time
@@ -23,12 +26,17 @@ char* head_control1(void) {
             }
             HAL_Delay(1);
             RxBuffer[index++] = received_char;
+            start_time = HAL_GetTick();
 
             // Break the loop if the end of the buffer is reached or if '$' is received
-            if (index >= RX_BUFFER_SIZE || received_char == '$') {
-                break;
+            if (index >= RX_BUFFER_SIZE || received_char == '$' || HAL_GetTick() - start_time > timeout)
+
+            {
+            	return "Error";
+
 
             }
+
         }
     }
 

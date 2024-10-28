@@ -67,6 +67,8 @@ void Error_Handler(void);
 #define Motor_B_CH3_GPIO_Port GPIOC
 #define Motor_A_CH4_Pin GPIO_PIN_3
 #define Motor_A_CH4_GPIO_Port GPIOC
+#define Side_Board_Reset_Pin GPIO_PIN_4
+#define Side_Board_Reset_GPIO_Port GPIOA
 #define Limiter_switch_j19_Pin GPIO_PIN_8
 #define Limiter_switch_j19_GPIO_Port GPIOD
 #define LS2_DRV1_NO_Pin GPIO_PIN_12

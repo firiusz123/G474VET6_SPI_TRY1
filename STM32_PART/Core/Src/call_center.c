@@ -23,8 +23,14 @@ char TxBuffer[TX_BUFFER_SIZE] = {0};
 char RxBuffer1[RX_BUFFER_SIZE]={0};
 char TxBuffer1[TX_BUFFER_SIZE] = "pAng$";
 
-int8_t posABS = 0;
-int8_t TileON = 0;
+int8_t posABS_HeadA = 0;
+int8_t posABS_HeadB = 0;
+
+int8_t TileONA = 0;
+int8_t TileONB = 0;
+
+uint32_t diff=0;
+uint32_t diff1=0;
 
 
 char* command_checker(uint8_t* buffer)
@@ -58,7 +64,7 @@ char* command_checker(uint8_t* buffer)
 
     return command;
 }
-char* head_control(void) {
+char* head_control(UART_HandleTypeDef *huart) {
     //char RxBuffer1[RX_BUFFER_SIZE];
     //memset(RxBuffer1, '\0', sizeof(RxBuffer1)); // Clear the buffer
 
@@ -66,34 +72,52 @@ char* head_control(void) {
     int8_t index = 0;
     memset(RxBuffer1, '\0', sizeof(RxBuffer1));
     // Continue to receive characters until the character '$' is found
+
+    uint32_t start_time=HAL_GetTick();
+    uint32_t timeout1=7000;
+
+
     while (1) {
         // Receive one character at a time
-    	if (HAL_UART_Receive(&huart5, (uint8_t*)&received_char1, 1, 1000) == HAL_OK) {
+		diff1=HAL_GetTick()-start_time;
+		if(diff1>=timeout1){
+		return "error$"; }
+
+    	if (HAL_UART_Receive(huart, (uint8_t*)&received_char1, 1, 100) == HAL_OK) {
         //if (HAL_UART_Receive(&huart5, (uint8_t*)&received_char1, 1, HAL_MAX_DELAY) == HAL_OK) {
         //if (HAL_UART_Receive(&huart5, (uint8_t*)received_char1, 1, HAL_MAX_DELAY) == HAL_OK) {
             // Skip adding to buffer if the received character is '\0'
     		if (received_char1=='H'){
     			RxBuffer1[index++] = received_char1;
+
     			while(1){
-    				if (HAL_UART_Receive(&huart5, (uint8_t*)&received_char1, 1, 1000) == HAL_OK) {
+    				diff=HAL_GetTick()-start_time;
+    				if(diff>=timeout1){
+    				break;}
+    				if (HAL_UART_Receive(huart, (uint8_t*)&received_char1, 1, 100) == HAL_OK) {
 
 
     						if (received_char1 == '\0') {
     							continue;
     						}
 
+
     						RxBuffer1[index++] = received_char1;
             //HAL_Delay(1);
             // Break the loop if the end of the buffer is reached or if '$' is received
     						if (index >= RX_BUFFER_SIZE || received_char1 == '$') {
-    							break;
+    							return RxBuffer1;
     						}
+    						//else {break;}
     					}
     				}
     			}
     		if (index >= RX_BUFFER_SIZE || received_char1 == '$') {
-    		    							break;
+    			return RxBuffer1;
     		    						}
+			if(diff>=timeout1){
+				return "error$";}
+
     		}
     		}
 
@@ -193,39 +217,92 @@ void SPI_Communication(void)
             {
             	char* command = command_checker(RxBuffer);
             	if(command == NULL){command = "MEM#ERR";}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            	//change to 2 heads
+            	//done
             	else if(strcmp(command, "HEAD") == 0)
             	{
 
-            		HAL_UART_Transmit(&huart5, (uint8_t *)RxBuffer, strlen(RxBuffer), HAL_MAX_DELAY);
-            		HAL_Delay(1);
-            		char* received_data = head_control();
-            		char* str;
-            		memset(TxBuffer, '\0', sizeof(TxBuffer));
-            		if(strcmp(received_data, "HEAD#0#F0F0F0F0$") == 0 ){str = "HEAD#0#NOK$";}
-            		else if(strcmp(received_data, "HEAD#1#F0F0F0F0$") == 0 ) {str = "HEAD#1#NOK$";}
-            		else if (received_data[5]=='0'){str = "HEAD#0#OK$";}
-            		else if (received_data[5]=='1'){str="HEAD#1#OK$";}
 
-            		printf("%s\n",str);
+            		char WhichHead;
+            		int HeadState;
+            		char* received_data = NULL;  // Initialize to avoid undefined behavior
+            		char* str = NULL;
+
+            		memset(TxBuffer, '\0', sizeof(TxBuffer));
+            		sscanf(RxBuffer, "HEAD#%c#%d$", &WhichHead,&HeadState);
+
+
+
+
+            		if(WhichHead == 'A')
+            		{
+            			HAL_UART_Transmit(&huart4, (uint8_t *)RxBuffer, strlen(RxBuffer), 100);
+            			received_data = head_control(&huart4);
+
+
+            		}
+            		else if(WhichHead == 'B')
+            		{
+            			HAL_UART_Transmit(&huart5, (uint8_t *)RxBuffer, strlen(RxBuffer), 100);
+            			received_data = head_control(&huart5);
+
+            		}
+            		else{str = "error$";}
+
+            		memset(TxBuffer, '\0', sizeof(TxBuffer));
+            		if(strcmp(received_data, "HEAD#0#F0F0F0F0$") == 0 )
+            		{str = "HEAD#0#NOK$";}
+            		else if(strcmp(received_data, "HEAD#1#F0F0F0F0$") == 0 )
+            		{str = "HEAD#1#NOK$";}
+            		else if (received_data[5]=='0')
+            		{str = "HEAD#A#OK$";}
+            		else if (received_data[5]=='1')
+            		{str="HEAD#B#OK$";}
+            		else{str="HEAD#0#NOK$";}
+
+            		if (received_data == NULL || strcmp(received_data, "error$") == 0){
+            			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
+            			HAL_Delay(500);
+            			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
+            			str = "error$";}
+
             		strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
             		memset(RxBuffer, '\0', sizeof(RxBuffer));
 
 
             	 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+            	// fix it according to the commands file
+            	//done
             	else if(strcmp(command, "MAGNET") == 0)
             	{
 
 
             		int8_t MagState;
-
-            		HAL_UART_Transmit(&huart5, (uint8_t *)RxBuffer, strlen(RxBuffer), HAL_MAX_DELAY);
+            		char WhitchMag;
+            		char message_to_uart;
             		memset(TxBuffer, '\0', sizeof(TxBuffer));
-					sscanf(RxBuffer, "MAGNET#%d$", &MagState);
-					if(MagState != 0){TileON = 1 ;}
-					else{TileON = 0 ;}
+					sscanf(RxBuffer, "MAGNET#%c#%d$", &WhitchMag,&MagState);
+					sprintf(message_to_uart, "MAGNET#%d$", MagState);
+
+					if (WhitchMag == 'A')
+					{
+					  HAL_UART_Transmit(&huart5, (uint8_t *)message_to_uart, strlen(message_to_uart), HAL_MAX_DELAY);
+					  TileONA = (MagState != 0) ? 1 : 0;
+					}
+					else if (WhitchMag == 'B')
+					{
+					  HAL_UART_Transmit(&huart4, (uint8_t *)message_to_uart, strlen(message_to_uart), HAL_MAX_DELAY);
+					  TileONB = (MagState != 0) ? 1 : 0;
+					}
+
 					//power=char(MagState);
+
+					//%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+					/*
 					if(MagState==0){
 						char *str = "MAGNET#0#OK$";
 						HAL_Delay(200);
@@ -237,33 +314,60 @@ void SPI_Communication(void)
 	            		strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
 
 					}
+					*///%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+					/*
+					 * %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+					char *response = "MAGNET#0#0#OK$";
+					sprintf(response, "MAGNET#%d#%d#OK$", &WhitchMag,&MagState);
+					HAL_Delay(200);
+					strncpy(TxBuffer, response, sizeof(TxBuffer) - 1);
+					%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+					*/
+
+
+					char response[50];
+					sprintf(response, "MAGNET#%c#%d#OK$", WhitchMag, MagState);
+
+					strncpy(TxBuffer, response, sizeof(TxBuffer) - 1);
+					HAL_Delay(200);
+
 					//char *str = "MAGNET#4#OK$";
 					//HAL_Delay(200);
 					//strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
             		//HAL_Delay(200);
 
             		memset(RxBuffer, '\0', sizeof(RxBuffer));
+            		memset(response,'\0',sizeof(response));
             	}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
             	else if(strcmp(command,"ROT")==0)
             	{
             		    int number;
             		    sscanf(RxBuffer, "ROT#%d$", &number);
-            		    Motor_Steer(number);
+						//Motor_Steer(number);
             		memset(TxBuffer, '\0', sizeof(TxBuffer));
             		char *str = "ROT#OK$";
             		strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
             		memset(RxBuffer, '\0', sizeof(RxBuffer));
             	}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+            	//need a fix for 2 heads
             	else if(strcmp(command,"AROT")==0)
             	{
+            	    uint32_t start_time=HAL_GetTick();
+            	    uint32_t timeout1=10000;
 
             		 int number;
-            		 sscanf(RxBuffer, "AROT#%d$", &number);
+            		 char WhichHeadRot;
+            		 int8_t HeadSide;
+
+            		 sscanf(RxBuffer, "AROT#%c#%d$", &WhichHeadRot,&number);
+            		 if(WhichHeadRot == 'A'){HeadSide = 0;}
+            		 else if(WhichHeadRot == 'B'){HeadSide = 1;}
 
 
-            		 ABSRotateHead(number);
+            		 ABSRotateHead(HeadSide,number);
             		 //char number1=number;
             		 memset(TxBuffer, '\0', sizeof(TxBuffer));
             		 //if ()
@@ -287,23 +391,39 @@ void SPI_Communication(void)
             		 memset(RxBuffer, '\0', sizeof(RxBuffer));
             	}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
             	else if(strcmp(command,"TILEBASE")==0) //bazowanie obortu kafelka
             	{
-            		HeadBase();
+            		char WhitchTile;
+            		char response[32];
+
+            		sscanf(RxBuffer, "TILEBASE#%c$", &WhitchTile);
+
+            		if(WhitchTile == 'A')
+            		{HeadBase(0);}
+            		else if(WhitchTile == 'B')
+            		{HeadBase(1);}
 
             		memset(TxBuffer, '\0', sizeof(TxBuffer));
             		GPIO_PinState current_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_7); // Read pin state
-            		if (current_state == GPIO_PIN_SET){
-            			char* str = "TILEBASE#OK$";
-            			strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
+            		if (current_state == GPIO_PIN_SET)
+            		{
+            			sprintf(response, "TILEBASE#%c#OK$", WhitchTile);
             		}
-            		else if (current_state == GPIO_PIN_RESET){
-            			char* str = "TILEBASE#NOK$";
-            			strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
+            		else if (current_state == GPIO_PIN_RESET)
+            		{
+            			sprintf(response, "TILEBASE#%c#NOK$", WhitchTile);
             		}
+
+            		strncpy(TxBuffer, response, sizeof(response) - 1);
+
             		//strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
             		memset(RxBuffer, '\0', sizeof(RxBuffer));
+            		memset(response , '\0' , sizeof(response));
             	}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
             	else if(strcmp(command,"SWTCH")==0) //Wysyłka stanu obrotu czujnika 0-wcisniety, 1-pusty
             	{
