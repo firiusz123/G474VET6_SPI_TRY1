@@ -23,8 +23,12 @@ char TxBuffer[TX_BUFFER_SIZE] = {0};
 char RxBuffer1[RX_BUFFER_SIZE]={0};
 char TxBuffer1[TX_BUFFER_SIZE] = "pAng$";
 
-int8_t posABS = 0;
-int8_t TileON = 0;
+int8_t posABS_HeadA = 0;
+int8_t posABS_HeadB = 0;
+
+int8_t TileONA = 0;
+int8_t TileONB = 0;
+
 uint32_t diff=0;
 uint32_t diff1=0;
 
@@ -287,12 +291,14 @@ void SPI_Communication(void)
 					if (WhitchMag == 'A')
 					{
 					  HAL_UART_Transmit(&huart5, (uint8_t *)message_to_uart, strlen(message_to_uart), HAL_MAX_DELAY);
+					  TileONA = (MagState != 0) ? 1 : 0;
 					}
 					else if (WhitchMag == 'B')
 					{
 					  HAL_UART_Transmit(&huart4, (uint8_t *)message_to_uart, strlen(message_to_uart), HAL_MAX_DELAY);
+					  TileONB = (MagState != 0) ? 1 : 0;
 					}
-					TileON = (MagState != 0) ? 1 : 0;
+
 					//power=char(MagState);
 
 					//%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -339,7 +345,7 @@ void SPI_Communication(void)
             	{
             		    int number;
             		    sscanf(RxBuffer, "ROT#%d$", &number);
-            		    Motor_Steer(number);
+						//Motor_Steer(number);
             		memset(TxBuffer, '\0', sizeof(TxBuffer));
             		char *str = "ROT#OK$";
             		strncpy(TxBuffer, str, sizeof(TxBuffer) - 1);
@@ -353,10 +359,15 @@ void SPI_Communication(void)
             	    uint32_t timeout1=10000;
 
             		 int number;
-            		 sscanf(RxBuffer, "AROT#%d$", &number);
+            		 char WhichHeadRot;
+            		 int8_t HeadSide;
+
+            		 sscanf(RxBuffer, "AROT#%c#%d$", &WhichHeadRot,&number);
+            		 if(WhichHeadRot == 'A'){HeadSide = 0;}
+            		 else if(WhichHeadRot == 'B'){HeadSide = 1;}
 
 
-            		 ABSRotateHead(number);
+            		 ABSRotateHead(HeadSide,number);
             		 //char number1=number;
             		 memset(TxBuffer, '\0', sizeof(TxBuffer));
             		 //if ()
@@ -390,9 +401,9 @@ void SPI_Communication(void)
             		sscanf(RxBuffer, "TILEBASE#%c$", &WhitchTile);
 
             		if(WhitchTile == 'A')
-            		{HeadBase(&huart4);}
+            		{HeadBase(0);}
             		else if(WhitchTile == 'B')
-            		{HeadBase(&huart5);}
+            		{HeadBase(1);}
 
             		memset(TxBuffer, '\0', sizeof(TxBuffer));
             		GPIO_PinState current_state = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_7); // Read pin state

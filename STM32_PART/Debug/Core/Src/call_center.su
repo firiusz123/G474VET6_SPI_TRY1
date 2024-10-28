@@ -1,5 +1,5 @@
-../Core/Src/call_center.c:32:7:command_checker	24	static
-../Core/Src/call_center.c:63:7:head_control	32	static
-../Core/Src/call_center.c:129:7:swtch_control	16	static
-../Core/Src/call_center.c:160:7:gaps_control	16	static
-../Core/Src/call_center.c:191:6:SPI_Communication	168	static
+../Core/Src/call_center.c:36:7:command_checker	24	static
+../Core/Src/call_center.c:67:7:head_control	32	static
+../Core/Src/call_center.c:133:7:swtch_control	16	static
+../Core/Src/call_center.c:164:7:gaps_control	16	static
+../Core/Src/call_center.c:195:6:SPI_Communication	176	static

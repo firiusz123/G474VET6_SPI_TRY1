@@ -5,7 +5,7 @@
 
 extern  int8_t counter; // Counter for slot sensor
 
-void SlotSensor_Init(void);
-int SlotSensor_Update(void);
+void SlotSensor_Init(int8_t side);
+int SlotSensor_Update(int8_t side);
 
 #endif // SLOT_SENSOR_H

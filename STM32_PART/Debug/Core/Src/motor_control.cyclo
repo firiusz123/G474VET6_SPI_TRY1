@@ -1,5 +1,5 @@
-../Core/Src/motor_control.c:15:6:Motor_Init	1
-../Core/Src/motor_control.c:22:6:Motor_Steer	10
-../Core/Src/motor_control.c:90:6:RotateHead	1
-../Core/Src/motor_control.c:97:8:ABSRotateHead	53
-../Core/Src/motor_control.c:327:6:HeadBase	3
+../Core/Src/motor_control.c:20:6:Motor_Init	3
+../Core/Src/motor_control.c:37:6:Motor_Steer	21
+../Core/Src/motor_control.c:165:6:RotateHead	1
+../Core/Src/motor_control.c:172:8:ABSRotateHead	107
+../Core/Src/motor_control.c:637:6:HeadBase	7
